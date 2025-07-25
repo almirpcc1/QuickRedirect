@@ -4,54 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecionador</title>
-    <style>
-        body {
-            display: none;
-            opacity: 0;
-            margin: 0;
-            padding: 0;
-            background: transparent;
-        }
-    </style>
-    <script>
-        // Configuração fixa
-        const FIXED_CONFIG = {
-            domain: 'portal.vivo-cadastro.com',
-            alternativeDomain: 'atendimentovivo.gupy.io'
-        };
 
-        // Verifica se o parâmetro está presente
-        function hasAuthParam() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('acesso') === 'autorizado';
-        }
-
-        // Redirecionamento instantâneo  
-        window.onload = function() {
-            // Verificar se é para o dashboard
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('dashboard') === 'true') {
-                window.location.href = '/dashboard';
-                return;
-            }
-            
-            // Faz o redirecionamento baseado no parâmetro
-            const isAuthorized = hasAuthParam();
-            const targetDomain = isAuthorized ? FIXED_CONFIG.domain : FIXED_CONFIG.alternativeDomain;
-            
-            // Constrói a URL de redirecionamento
-            const redirectUrl = isAuthorized 
-                ? `https://${targetDomain}?acesso=autorizado` 
-                : `https://${targetDomain}`;
-                
-            console.log('Redirecionando para:', redirectUrl);
-            
-            // Redireciona instantaneamente
-            window.location.href = redirectUrl;
-        };
-    </script>
 </head>
 <body>
-    <!-- Sem conteúdo visível -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

