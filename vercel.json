@@ -3,11 +3,8 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "rewrites": [
-    { "source": "/api/config", "destination": "/api/redirectConfig" },
-    { "source": "/api/redirect", "destination": "/api/redirect" },
-    { "source": "/config", "destination": "/saveConfig.html" },
     { "source": "/:cpf(\\d{11})", "destination": "/api/cpf/:cpf" },
-    { "source": "/", "destination": "/api/redirect" },
+    { "source": "/", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [

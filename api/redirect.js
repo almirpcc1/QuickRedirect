@@ -41,31 +41,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Verifica se o parâmetro de acesso está presente
-  const hasAuthParam = req.query.acesso === 'autorizado';
-  console.log('Parâmetro acesso=autorizado presente:', hasAuthParam);
-
-  // Verifica se é dispositivo móvel através do user-agent
-  const userAgent = req.headers['user-agent'] || '';
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  console.log('Dispositivo é móvel:', isMobile);
-  
-  // Determina o domínio alvo baseado na presença do parâmetro de autorização e tipo de dispositivo
-  let redirectUrl = `https://${FIXED_CONFIG.alternative_domain}`; // URL padrão para não-autorizado
-  
-  if (hasAuthParam) {
-    // Se tem o parâmetro de autorização
-    if (isMobile) {
-      // Dispositivo móvel - redirecionar para o domínio autorizado
-      redirectUrl = `https://${FIXED_CONFIG.domain}?acesso=autorizado`;
-    } else {
-      // Desktop - redirecionar para about:blank
-      redirectUrl = 'about:blank';
-    }
-  }
-  
-  console.log('Redirecionando para:', redirectUrl);
-  
-  // Realiza o redirecionamento
-  return res.redirect(307, redirectUrl);
+  // Para qualquer outra rota sem CPF, redirecionar para a página principal
+  console.log('Nenhum CPF encontrado, redirecionando para página principal');
+  return res.redirect(307, '/dashboard');
 }

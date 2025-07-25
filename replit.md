@@ -1,8 +1,8 @@
-# Domain Redirector Application
+# CPF Redirector Application
 
 ## Overview
 
-This is a full-stack web application for configuring domain redirects. It provides a simple UI to set up domains for redirection with customizable delays and auto-redirect options. The application uses a React frontend with TypeScript, an Express backend, and Drizzle ORM for database operations.
+This is a specialized web application that captures CPF numbers from URL slugs and instantly redirects users to the Brazilian Federal Revenue Service (Receita Federal) website. The application provides seamless redirection functionality for accessing government services with CPF validation.
 
 ## User Preferences
 
@@ -49,18 +49,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Data Flow
 
-1. **User Input**:
-   - User enters domain information in the DomainForm component
-   - Form data is validated client-side using Zod
+1. **CPF URL Detection**:
+   - User accesses URL with CPF pattern (e.g., `/06537080177`)
+   - Application detects 11-digit numeric slug using regex pattern
 
-2. **API Communication**:
-   - Validated data is sent to the API endpoints
-   - Backend validates the data again using shared schemas
-   - Data is stored in database (currently simulated with in-memory storage)
+2. **Instant Redirection**:
+   - CPF is extracted from URL slug
+   - Validated to ensure exactly 11 numeric digits
+   - User is instantly redirected to `https://receita.canalgovbr.org/{cpf}`
 
-3. **Redirect Process**:
-   - When redirects are configured, a timer starts based on the delay setting
-   - After the delay, the user is redirected to the configured domain
+3. **Fallback Behavior**:
+   - For non-CPF URLs, users are redirected to the dashboard/configuration page
+   - No authentication or authorization checks required
 
 ## External Dependencies
 
