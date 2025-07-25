@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salvar Configuração</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #0066cc;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, select {
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0055aa;
+        }
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Configurar Redirecionador</h1>
+    
+    <div id="successMessage" class="success">
+        Configuração salva com sucesso!
+    </div>
+    <div id="errorMessage" class="error">
+        Erro ao salvar configuração.
+    </div>
+    
+    <form id="configForm">
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" value="Redirecionador" required>
+        
+        <label for="domain">Domínio Principal (para acesso=autorizado):</label>
+        <input type="text" id="domain" name="domain" placeholder="exemplo.com.br" required>
+        
+        <label for="alternativeDomain">Domínio Alternativo:</label>
+        <input type="text" id="alternativeDomain" name="alternativeDomain" value="google.com" required>
+        
+        <label for="autoRedirect">Redirecionamento Automático:</label>
+        <select id="autoRedirect" name="autoRedirect">
+            <option value="true" selected>Sim</option>
+            <option value="false">Não</option>
+        </select>
+        
+        <label for="delay">Atraso (segundos):</label>
+        <input type="number" id="delay" name="delay" min="0" max="10" value="0">
+        
+        <button type="submit">Salvar Configuração</button>
+    </form>
+    
+    <script>
+        document.getElementById('configForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                title: document.getElementById('title').value,
+                domain: document.getElementById('domain').value,
+                alternativeDomain: document.getElementById('alternativeDomain').value,
+                autoRedirect: document.getElementById('autoRedirect').value === 'true',
+                delay: parseInt(document.getElementById('delay').value, 10)
+            };
+            
+            try {
+                // Primeiro tentamos com a API específica para Vercel
+                const response = await fetch('/api/redirectConfig', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Também salvamos no localStorage como backup
+                    localStorage.setItem('redirector-config', JSON.stringify(formData));
+                    
+                    console.log('Configuração salva com sucesso:', data);
+                } else {
+                    throw new Error(data.error || 'Erro ao salvar configuração');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                
+                // Tentamos salvar localmente como fallback
+                localStorage.setItem('redirector-config', JSON.stringify(formData));
+                
+                document.getElementById('errorMessage').textContent = 
+                    'Erro ao salvar no servidor. Configuração salva apenas localmente: ' + error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        });
+        
+        // Carregar config salva anteriormente, se existir
+        window.addEventListener('DOMContentLoaded', function() {
+            const savedConfig = localStorage.getItem('redirector-config');
+            if (savedConfig) {
+                try {
+                    const config = JSON.parse(savedConfig);
+                    document.getElementById('title').value = config.title || 'Redirecionador';
+                    document.getElementById('domain').value = config.domain || '';
+                    document.getElementById('alternativeDomain').value = config.alternativeDomain || 'google.com';
+                    document.getElementById('autoRedirect').value = config.autoRedirect ? 'true' : 'false';
+                    document.getElementById('delay').value = config.delay || 0;
+                } catch (e) {
+                    console.error('Erro ao carregar configuração:', e);
+                }
+            }
+            
+            // Também tenta carregar do servidor
+            fetch('/api/redirectConfig')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Não foi possível carregar configuração do servidor');
+                })
+                .then(config => {
+                    document.getElementById('title').value = config.title || 'Redirecionador';
+                    document.getElementById('domain').value = config.domain || '';
+                    document.getElementById('alternativeDomain').value = config.alternativeDomain || 'google.com';
+                    document.getElementById('autoRedirect').value = config.autoRedirect ? 'true' : 'false';
+                    document.getElementById('delay').value = config.delay || 0;
+                    
+                    // Atualiza localStorage com dados do servidor
+                    localStorage.setItem('redirector-config', JSON.stringify(config));
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar do servidor:', error);
+                });
+        });
+    </script>
+</body>
+</html>

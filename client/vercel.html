@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionador</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: none;
+            opacity: 0;
+        }
+    </style>
+    <script>
+        // Script para redirecionamento instantâneo na Vercel
+        (function() {
+            // Verifica se o usuário quer acessar o dashboard
+            function shouldGoToDashboard() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('dashboard') === 'true';
+            }
+
+            // Verifica se tem o parâmetro de acesso autorizado
+            function hasAuthParam() {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get('acesso') === 'autorizado';
+            }
+
+            // Se for para acessar o dashboard, redireciona
+            if (shouldGoToDashboard()) {
+                window.location.href = window.location.origin + '/dashboard';
+            } else {
+                // Busca a configuração no localStorage como fallback
+                let config = null;
+                try {
+                    const savedConfig = localStorage.getItem('redirector-config');
+                    if (savedConfig) {
+                        config = JSON.parse(savedConfig);
+                    }
+                } catch (e) {
+                    console.error('Erro ao carregar configuração local:', e);
+                }
+
+                // Busca a configuração na API
+                fetch(window.location.origin + '/api/config')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha ao carregar configuração');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Se recebeu dados da API, usa eles
+                        if (data && data.domain) {
+                            config = data;
+                            // Salva localmente para ter como backup
+                            localStorage.setItem('redirector-config', JSON.stringify(data));
+                        }
+                        redirectToTarget();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar configuração:', error);
+                        redirectToTarget();
+                    });
+
+                function redirectToTarget() {
+                    // Se não tem configuração, vai para o dashboard
+                    if (!config || !config.domain) {
+                        window.location.href = window.location.origin + '/dashboard';
+                        return;
+                    }
+
+                    // Decide qual domínio usar com base no parâmetro
+                    const isAuthorized = hasAuthParam();
+                    const targetDomain = isAuthorized ? config.domain : config.alternativeDomain;
+
+                    // Constrói a URL de redirecionamento
+                    const redirectUrl = isAuthorized
+                        ? `https://${targetDomain}?acesso=autorizado`
+                        : `https://${targetDomain}`;
+
+                    // Redireciona
+                    console.log('Redirecionando para:', redirectUrl);
+                    window.location.href = redirectUrl;
+                }
+            }
+        })();
+    </script>
+</head>
+<body>
+    <!-- Sem conteúdo visível -->
+</body>
+</html>

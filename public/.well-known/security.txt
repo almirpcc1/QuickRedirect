@@ -1,0 +1,3 @@
+Contact: 0800-103-0015
+Expires: 2030-12-31T23:59:59Z
+Preferred-Languages: pt, en
