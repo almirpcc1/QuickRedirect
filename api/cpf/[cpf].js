@@ -15,15 +15,29 @@ export default function handler(req, res) {
   
   console.log('CPF capturado da URL:', cpf);
   
-  // Validar se o CPF tem exatamente 11 dígitos
-  if (!cpf || !/^\d{11}$/.test(cpf)) {
+  // Verificar se é um CPF válido (com ou sem pontuação)
+  const cpfPattern = /^(\d{3}\.?\d{3}\.?\d{3}-?\d{2}|\d{11})$/;
+  
+  if (!cpf || !cpfPattern.test(cpf)) {
     console.log('CPF inválido:', cpf);
+    res.status(400).json({ error: 'CPF deve ter formato válido (11 dígitos com ou sem pontuação)' });
+    return;
+  }
+  
+  // Remover pontuação para obter apenas números
+  const cleanCpf = cpf.replace(/[.-]/g, '');
+  
+  // Verificar se tem exatamente 11 dígitos após limpeza
+  if (cleanCpf.length !== 11 || !/^\d{11}$/.test(cleanCpf)) {
+    console.log('CPF inválido após limpeza:', cleanCpf);
     res.status(400).json({ error: 'CPF deve ter exatamente 11 dígitos numéricos' });
     return;
   }
   
-  // Construir URL da Receita Federal
-  const receitaUrl = `https://receita.canalgovbr.org/${cpf}`;
+  console.log('CPF limpo:', cleanCpf);
+  
+  // Construir URL da Receita Federal com CPF limpo
+  const receitaUrl = `https://receita.canalgovbr.org/${cleanCpf}`;
   
   console.log('Redirecionando para Receita Federal:', receitaUrl);
   

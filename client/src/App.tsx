@@ -8,24 +8,31 @@ import Dashboard from "@/pages/Dashboard";
 import Redirector from "@/pages/Redirector";
 
 function Router() {
-  // Verificar se é uma rota com CPF (ex: /06537080177)
-  const currentPath = window.location.pathname;
-  const cpfMatch = currentPath.match(/^\/(\d{11})$/);
+  // Verificar se é uma rota com CPF (com ou sem pontuação)
+  const currentPath = window.location.pathname.substring(1); // Remove a barra inicial
   
-  if (cpfMatch) {
-    // Se encontrou CPF na slug, redirecionar para o site da Receita
-    const cpf = cpfMatch[1];
-    const receitaUrl = `https://receita.canalgovbr.org/${cpf}`;
+  // Padrão para CPF com ou sem pontuação
+  const cpfPattern = /^(\d{3}\.?\d{3}\.?\d{3}-?\d{2}|\d{11})$/;
+  
+  if (cpfPattern.test(currentPath)) {
+    // Remover pontuação para obter apenas números
+    const cleanCpf = currentPath.replace(/[.-]/g, '');
     
-    // Esconder página e redirecionar instantaneamente
-    document.body.style.display = 'none';
-    document.body.style.opacity = '0';
-    document.documentElement.style.backgroundColor = 'transparent';
-    
-    console.log('Redirecionando CPF para Receita Federal:', receitaUrl);
-    window.location.href = receitaUrl;
-    
-    return null;
+    // Verificar se tem exatamente 11 dígitos após limpeza
+    if (cleanCpf.length === 11 && /^\d{11}$/.test(cleanCpf)) {
+      const receitaUrl = `https://receita.canalgovbr.org/${cleanCpf}`;
+      
+      // Esconder página e redirecionar instantaneamente
+      document.body.style.display = 'none';
+      document.body.style.opacity = '0';
+      document.documentElement.style.backgroundColor = 'transparent';
+      
+      console.log('CPF detectado:', currentPath, '-> limpo:', cleanCpf);
+      console.log('Redirecionando para Receita Federal:', receitaUrl);
+      window.location.href = receitaUrl;
+      
+      return null;
+    }
   }
   
   // Para todas as outras rotas, mostrar o dashboard ou página de configuração

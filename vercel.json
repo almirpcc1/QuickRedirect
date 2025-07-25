@@ -3,7 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/public",
   "rewrites": [
-    { "source": "/:cpf(\\d{11})", "destination": "/api/cpf/:cpf" },
+    { "source": "/:cpf(\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}|\\d{11})", "destination": "/api/cpf/:cpf" },
     { "source": "/", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
